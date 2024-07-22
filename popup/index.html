@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh-tw">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <div class="container">
+        <h1>Comments Filter</h1> 
+        <div class="checkbox-container">
+            <div>
+                <input type="checkbox" name="expose" id="expose" class="switch"> <label for="expose">劇透</label>
+            </div>
+            <div>
+                <input type="checkbox" name="violence" id="violence" class="switch"> <label for="violence">暴力</label>
+            </div>
+            <div>
+                <input type="checkbox" name="nsfw" id="nsfw" class="switch"> <label for="nsfw">NSFW</label>        
+            </div>
+
+        </div>
+            <label for="keywordInput">過濾關鍵字</label>
+            <input type="text" id="keywordInput">
+            <button></button>
+    </div>
+    <script src="./popup.js" type="module"></script>
+</body>
+
+</html>
