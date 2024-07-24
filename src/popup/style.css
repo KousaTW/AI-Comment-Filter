@@ -32,6 +32,7 @@ body {
     justify-items: center;
 }
 
+
 .title {
     color: white;
     font-size: 16px;
@@ -41,9 +42,11 @@ body {
 label {
     color: white;
     font-size: var(--switch-height);
+
     user-select: none; 
     
 }
+
 /*  check box Switch */
 input[type="checkbox"].switch {
     position: relative;
@@ -63,6 +66,7 @@ input:checked[type="checkbox"].switch {
     background-color: #03a9f4;
     transition: 0.5s;
 }
+
 input[type="checkbox"].switch::before {
     content: "";
     position: absolute;
