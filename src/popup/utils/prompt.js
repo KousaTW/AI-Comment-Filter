@@ -19,7 +19,7 @@
 
 
 
-export const prompt = `
+export const PROMPT = `
 
 # Instructions #
 Base on a string of <Comment> and corresponding <Comment_ID> in XML format <Comments_List> tags. Follow the <Filter_Rules> to identify and mark comments.
