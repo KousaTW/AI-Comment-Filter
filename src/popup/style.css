@@ -4,7 +4,7 @@
     --white: rgb(255, 255, 255);
     --black: rgb(24, 26, 30);
 
-    --page-width: 170px;
+    --page-width: 250px;
     --switch-height:16px;
     --switch-width:36px;
 
@@ -21,6 +21,11 @@
     --radius3: 15px;
 }
 
+* {
+    padding: 0;
+    margin: 0;
+}
+
 body {
     min-width: var(--page-width);
     font-family: 'RocknRoll One', 'Noto Sans TC', sans-serif;
@@ -28,12 +33,14 @@ body {
 }
 
 .container {
+    width: 100%;
+    height: 100%;
+    position: relative;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
-
 
 .open-setting-btn-container{
     position: absolute;
@@ -53,7 +60,7 @@ body {
 .open-setting-btn-container .open-setting-button:hover{
     cursor: pointer;
 }
-.setting{
+.back-ground .setting{
     top: 0;
     left: 0;
     display: none;
@@ -85,39 +92,44 @@ body {
 }
 
 
-.checkbox-container {
+.fore-ground{
+    margin: 8px 0;
+}
+.fore-ground .checkbox-container {
+    margin-top: 8px;
     display: flex;
     flex-direction: column;
 }
-.checkbox-container>div{
+.fore-ground .checkbox-container>div{
     display: flex;
     align-items: center;
     justify-items: center;
+    padding: 2px 0;
 }
 
 
-.title {
+.fore-ground .title {
     color: var(--white);
-    font-size: 16px;
+    font-size: var(--font-size1);
     justify-self: center;
 }
 
-label {
+.fore-ground label {
     color: var(--white);
     font-size: var(--switch-height);
 
     user-select: none; 
-    
+    padding-left: 10px;
 }
 
 /*  check box Switch */
-input[type="checkbox"].switch {
+.fore-ground input[type="checkbox"].switch {
     position: relative;
     min-width: var(--switch-width);
     min-height: var(--switch-height);
 
     -webkit-appearance: none;
-
+    
     background: #c6c6c6;
     outline: none;
     border-radius: 20px;
@@ -125,12 +137,12 @@ input[type="checkbox"].switch {
     /* transition: 0.5s; */
 }
 
-input:checked[type="checkbox"].switch {
+.fore-ground input:checked[type="checkbox"].switch {
     background-color: #03a9f4;
     transition: 0.5s;
 }
 
-input[type="checkbox"].switch::before {
+.fore-ground input[type="checkbox"].switch::before {
     content: "";
     position: absolute;
     width: var(--switch-height);
@@ -144,10 +156,10 @@ input[type="checkbox"].switch::before {
     transition: 0.5s;
 }
 
-input:checked[type="checkbox"].switch::before {
+.fore-ground input:checked[type="checkbox"].switch::before {
     left: calc(var(--switch-width)/2);
 }
 
-.keword-container{
+.fore-ground .keword-container{
     padding-inline:5px;
 }
