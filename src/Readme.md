@@ -6,6 +6,12 @@ pip install fastapi uvicorn
 pip install groq
 ```
 
+## 啟動
+```
+cd src/
+python api.py
+```
+
 ## Curl
 ```
 curl -X 'POST' \
