@@ -1,0 +1,165 @@
+@import url('RocknRoll_font.css');
+
+:root {
+    --white: rgb(255, 255, 255);
+    --black: rgb(24, 26, 30);
+
+    --page-width: 250px;
+    --switch-height:16px;
+    --switch-width:36px;
+
+    --black-mask: rgba(0, 0, 0, 0.917);
+
+    --font-size0: 14px;
+    --font-size1: 16px;
+    --font-size2: 20px;
+    --font-size3: 24px;
+    --font-size4: 32px;
+
+    --radius1: 5px;
+    --radius2: 10px;
+    --radius3: 15px;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+}
+
+body {
+    min-width: var(--page-width);
+    font-family: 'RocknRoll One', 'Noto Sans TC', sans-serif;
+    background-color: var(--black);
+}
+
+.container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.open-setting-btn-container{
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    z-index: 101;
+}
+.open-setting-btn-container .open-setting-button{
+    width: 25px;
+    border-radius: 20%;
+    background-color: var(--white);
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.open-setting-btn-container .open-setting-button:hover{
+    cursor: pointer;
+}
+.back-ground .setting{
+    top: 0;
+    left: 0;
+    display: none;
+    position: absolute;
+    z-index: 100;
+    background-color: var(--black-mask);
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: center;
+}
+.setting h3{
+    color: var(--white);
+    font-size: var(--font-size2);
+    margin: 4px 0;
+}
+.setting input{
+    padding: 0 8px;
+    width: 90%;
+    height: 26px;
+    border-radius: var(--radius1);
+    margin: 4px 0;
+    box-sizing: border-box;
+    font-size: var(--font-size0);
+    border: none;
+}
+.setting input:focus{
+    outline: none;
+}
+
+
+.fore-ground{
+    margin: 8px 0;
+}
+.fore-ground .checkbox-container {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+}
+.fore-ground .checkbox-container>div{
+    display: flex;
+    align-items: center;
+    justify-items: center;
+    padding: 2px 0;
+}
+
+
+.fore-ground .title {
+    color: var(--white);
+    font-size: var(--font-size1);
+    justify-self: center;
+}
+
+.fore-ground label {
+    color: var(--white);
+    font-size: var(--switch-height);
+
+    user-select: none; 
+    padding-left: 10px;
+}
+
+/*  check box Switch */
+.fore-ground input[type="checkbox"].switch {
+    position: relative;
+    min-width: var(--switch-width);
+    min-height: var(--switch-height);
+
+    -webkit-appearance: none;
+    
+    background: #c6c6c6;
+    outline: none;
+    border-radius: 20px;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+    /* transition: 0.5s; */
+}
+
+.fore-ground input:checked[type="checkbox"].switch {
+    background-color: #03a9f4;
+    transition: 0.5s;
+}
+
+.fore-ground input[type="checkbox"].switch::before {
+    content: "";
+    position: absolute;
+    width: var(--switch-height);
+    height:var(--switch-height);
+    border-radius: 50%;
+    top: 0;
+    left: 0;
+    background-color: var(--white);
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
+    transition: 0.5s;
+}
+
+.fore-ground input:checked[type="checkbox"].switch::before {
+    left: calc(var(--switch-width)/2);
+}
+
+.fore-ground .keword-container{
+    padding-inline:5px;
+}
