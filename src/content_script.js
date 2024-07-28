@@ -129,7 +129,6 @@ const addAttr2Comment = (commentDOM, platform) => {
  * @returns {Array<CommentObj>} 
  */
 function processComments(platform) {
-    platform.
         // 建立樓層    
         platform.createFloor();
     // 獲取留言
