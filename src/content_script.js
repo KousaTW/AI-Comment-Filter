@@ -126,7 +126,7 @@ const addAttr2Comment = (commentDOM, platform) => {
 /**
  * 使用各平台留言方法處理留言
  * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] 
- * @returns {Array<CommentObj>} 
+ * @returns {Array[CommentObj]} 
  */
 
 function processComments(platform) {
@@ -143,9 +143,9 @@ function processComments(platform) {
         .filter(comment => comment !== undefined);
 
     if (comments.length > 0) {
-        parsedData.comments = [...parsedData.comments, ...comments]
-        console.log(parsedData.comments)
+        return comments
     }
+
 
 
 }
@@ -184,11 +184,24 @@ function launchMutationObserver(observer) {
 window.onload = () => {
     if (document.URL.includes("https://www.youtube.com/watch")) {
 
+        const queryParameters = document.URL.split("?")[1];
+        const urlParameters = new URLSearchParams(queryParameters);
         const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
-                if (mutation.type === 'childList') {
-                    processComments(Youtube);
+                if (mutation.type !== 'childList') {
+                    continue;
                 }
+                const parsedComments = processComments(Youtube)
+                if (parsedComments) {
+                    parsedData.comments = [...parsedData.comments, ...parsedComments]
+                    const videoID = urlParameters.get('v');
+                    chrome.storage.local.set({ [videoID]: parsedData.comments }, () => {
+                        console.log('Comments saved for videoID:', videoID)
+                    })
+                    chrome.storage.local.get(videoID, function(result) {
+                        console.log('Retrieved comments:', result[videoID]);
+                    });
+                };
             }
         });
         // 等待找到第一筆留言後 啟動mutation observer
