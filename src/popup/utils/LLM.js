@@ -60,8 +60,3 @@ export function convertListToXML(data, outerTag, innerTag) {
 //         <Comment>This is a comment that contains explicit pornographic content.</Comment>
 //     </Comments>
 // </Comments_List>
-
-
-export function test(){
-    console.log("TEST import");
-}
