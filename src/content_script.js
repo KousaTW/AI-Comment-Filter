@@ -1,28 +1,120 @@
 /**
  * 留言物件.
  * @typedef {Object} CommentObj
- * @property {string} id - 留言的作者或唯一識別
- * @property {string} content - 留言內容
+ * @property {string} Comment_ID - 留言ID
+ * @property {string} User_ID - 留言的作者
+ * @property {string} Comment - 留言內容
+ * @property {Number} status - 留言狀態 [ 0:done , 1:mask , 2:pending]
 */
+const Status = Object.freeze({
+    done: 0,
+    mask: 1,
+    pending: 2
+})
+
+const parsedData = {
+    maskType: ["NSFW"],
+    comments: [],
+}
+
+/**
+ * @typedef {Object} Platform
+ * @property {String} selector - 各平台留言DOM的querySelector
+ * @property {String} attr - 自訂的留言DOM ID 用來找尋指定DOM
+ * @property {Number} commentCount - 主要留言的計數器
+ * @property {String} replySelector - 各平台的回覆區的querySelector
+ * @property {String} replyFloorAttr - 自訂的回覆區樓層 Attr 用來確認當前留言的樓層及是否為回覆留言
+ * @property {Number} replyFloorCount - 回覆區樓層計數器
+ * @property {Map} replyDict - 自訂的回覆留言Map用來計算各樓層的回覆留言順序
+ * @property {Function} commentParse - 解析留言DOM
+ * @property {Function} createFloor - 為回覆區添加樓層Attr
+ * @property {Function} commentParse - 解析留言DOM
+ * @property {Function} checkFloor - 檢查留言是否為回覆留言並返回樓層
+ */
+
+/**
+ * @type {Platform}
+ */
 const Youtube = {
-    /**
-     * youtube留言selector
-     */
     selector: '#main.style-scope.ytd-comment-view-model',
-    observeTarget: document.querySelector('#below'),
+    attr: "commentID",
+    commentCount: 1,
+    replySelector: "#replies",
+    replyFloorAttr: "replyFloor",
+    replyFloorCount: 1,
+    replyDict: new Map(),
     /**  
      * youtube留言解析方法
      * @param {HTMLElement} ytComment
      * @returns {CommentObj} 
      */
     commentParse: function (ytComment) {
-        const id = ytComment.querySelector("h3").textContent.trim()
+        const ID = ytComment.getAttribute(this.attr)
+        const author = ytComment.querySelector("h3").textContent.trim()
         const content = ytComment.querySelector("#content-text").textContent.trim()
-        if (id && content) {
-            return { id: id, content: content };
+
+
+        if (author && content) {
+            // console.log(`ID ${ID} , Author: ${author} , content:${content}`)
+            return { Comment_ID: ID, User_ID: author, Comment: content, status: Status.pending };
         }
         return undefined;
+    },
+    /**
+     * 使用Attr來建立reply的樓層
+     */
+    createFloor: function () {
+        // length 4
+        const replyDomArray = Array.from(document.querySelectorAll(this.replySelector))
+            .filter(replyDom => !replyDom.hasAttribute("FloorCreate"))
+            .map((replyDom, index) => {
+                replyDom.setAttribute("FloorCreate", "true")
+                // 確認子元素是否含有#expander-contents
+                const expander_contents = replyDom.querySelector('#expander-contents')
+                if (expander_contents) {
+                    // console.log(`建立樓層:${this.replyFloorCount + index}F`)
+                    expander_contents.setAttribute(this.replyFloorAttr, this.replyFloorCount + index)
+                    this.replyDict.set(this.replyFloorCount + index, 1)
+                }
+            })
+        this.replyFloorCount += replyDomArray.length;
+    },
+
+    /**
+     * 確認是否為reply
+     * @param {HTMLElement} ytComment 
+     * @returns 回傳樓層 或是 false
+     */
+    checkFloor: function (ytComment) {
+        let replyFloor;
+        if (ytComment.parentElement.parentElement.parentElement.parentElement)
+            replyFloor = ytComment.parentElement.parentElement.parentElement.parentElement;
+
+        if (replyFloor && replyFloor.hasAttribute(this.replyFloorAttr)) {
+            return replyFloor.getAttribute(this.replyFloorAttr);
+        }
+        return false;
     }
+}
+
+/**
+ * 為找到的留言新增辨識碼
+ * @param {HTMLElement} commentDOM - 留言DOM
+ * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] 
+ */
+const addAttr2Comment = (commentDOM, platform) => {
+    //檢查是否為回覆留言
+    const floorNumber = platform.checkFloor(commentDOM)
+    if (floorNumber) {
+        const currentFloorSerial = platform.replyDict.get(1);
+        commentDOM.setAttribute(platform.attr, `${floorNumber}-${currentFloorSerial}`);
+        platform.replyDict.set(floorNumber, currentFloorSerial + 1);
+    } else {
+        commentDOM.setAttribute(platform.attr, platform.commentCount)
+        platform.commentCount += 1;
+    }
+
+
 }
 
 /**
@@ -32,40 +124,56 @@ const Youtube = {
  * @returns {CommentObj} 
  */
 /**
- * 使用各平台留言解析方法
- * @param {string} selector - 各平台的留言DOM selector
- * @param {commentParseCallback} callback - 留言解析方法
+ * 使用各平台留言方法處理留言
+ * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] 
  * @returns {Array<CommentObj>} 
  */
-function processComments(selector, callback) {
-    const elements = document.querySelectorAll(selector);
-    return Array.from(elements)
-        .map(comment => callback(comment))
+function processComments(platform) {
+    platform.
+        // 建立樓層    
+        platform.createFloor();
+    // 獲取留言
+    let comments = document.querySelectorAll(platform.selector);
+    comments = Array.from(comments)
+        .filter((comment) => !comment.hasAttribute(platform.attr)) // 過濾出還沒設定commentAttribute的留言
+        .map((comment) => {
+            addAttr2Comment(comment, platform); // 留言添加Attribute
+            return platform.commentParse(comment); // 留言解析
+        })
         .filter(comment => comment !== undefined);
+
+    if (comments.length > 0) {
+        parsedData.comments = [...parsedData.comments, ...comments]
+        console.log(parsedData.comments)
+    }
+
+
 }
-
-
+/**
+ * 
+ * @param {String} selector 
+ * @param {Function} callback 
+ */
 function waitElement(selector, callback) {
     const element = document.querySelector(selector);
     if (element) {
         callback()
     } else {
         setTimeout(() => {
-            waitElement(selector, callback)
+            waitElement(selector, callback);
         }, 100)
     }
 }
+
 /**
  * 啟動觀察者
  * @param {MutationObserver} observer 
  */
-function launchMutationObserver(observer){
+function launchMutationObserver(observer) {
     // 找到留言區
     const targetNode = document.querySelectorAll('#sections')[1];
 
     if (targetNode) {
-        console.log("獲得留言節點")
-
         observer.observe(targetNode, {
             childList: true,
             subtree: true
@@ -73,21 +181,19 @@ function launchMutationObserver(observer){
     }
 }
 
-
-
 window.onload = () => {
     if (document.URL.includes("https://www.youtube.com/watch")) {
 
         const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type === 'childList') {
-                    console.log(processComments(Youtube.selector, Youtube.commentParse))
+                    processComments(Youtube);
                 }
             }
         });
         // 等待找到第一筆留言後 啟動mutation observer
-        waitElement(Youtube.selector, ()=>{
-            launchMutationObserver(observer)
+        waitElement(Youtube.selector, () => {
+            launchMutationObserver(observer);
         })
     }
 }
