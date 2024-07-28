@@ -128,9 +128,10 @@ const addAttr2Comment = (commentDOM, platform) => {
  * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] 
  * @returns {Array<CommentObj>} 
  */
-function processComments(platform) {    
-        // 建立樓層    
-        platform.createFloor();
+
+function processComments(platform) {
+    // 建立樓層    
+    platform.createFloor();
     // 獲取留言
     let comments = document.querySelectorAll(platform.selector);
     comments = Array.from(comments)
