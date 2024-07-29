@@ -68,13 +68,14 @@ const Youtube = {
         const replyDomArray = Array.from(document.querySelectorAll(this.replySelector))
             .filter(replyDom => !replyDom.hasAttribute("FloorCreate"))
             .map((replyDom, index) => {
+                // replyDom #replies每個留言都有
                 replyDom.setAttribute("FloorCreate", "true")
                 // 確認子元素是否含有#expander-contents
                 const expander_contents = replyDom.querySelector('#expander-contents')
                 if (expander_contents) {
                     // console.log(`建立樓層:${this.replyFloorCount + index}F`)
                     expander_contents.setAttribute(this.replyFloorAttr, this.replyFloorCount + index)
-                    this.replyDict.set(this.replyFloorCount + index, 1)
+                    this.replyDict.set(this.replyFloorCount + index , 1)
                 }
             })
         this.replyFloorCount += replyDomArray.length;
@@ -106,9 +107,9 @@ const addAttr2Comment = (commentDOM, platform) => {
     //檢查是否為回覆留言
     const floorNumber = platform.checkFloor(commentDOM)
     if (floorNumber) {
-        const currentFloorSerial = platform.replyDict.get(1);
+        const currentFloorSerial = platform.replyDict.get(parseInt(floorNumber));
         commentDOM.setAttribute(platform.attr, `${floorNumber}-${currentFloorSerial}`);
-        platform.replyDict.set(floorNumber, currentFloorSerial + 1);
+        platform.replyDict.set(parseInt(floorNumber), currentFloorSerial + 1);
     } else {
         commentDOM.setAttribute(platform.attr, platform.commentCount)
         platform.commentCount += 1;
