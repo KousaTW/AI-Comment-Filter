@@ -60,3 +60,30 @@ export function convertListToXML(data, outerTag, innerTag) {
 //         <Comment>This is a comment that contains explicit pornographic content.</Comment>
 //     </Comments>
 // </Comments_List>
+
+
+
+/**
+ * @param {string} xmlStr
+ * @returns {Array<string>} 
+ */
+export function convertXMLToData(xmlStr) {
+    const regex = /<Comment_ID>(.*?)<\/Comment_ID>/g;
+    const result = [];
+    let match;
+
+    while ((match = regex.exec(xmlStr)) !== null) {
+        result.push(match[1]);
+    }
+
+    return result;
+}
+
+// Input:
+// <filtered_Comments>
+//     <Comments_ID>abc123</Comments_ID>
+//     <Comments_ID>def456</Comments_ID>
+// </filtered_Comments>
+// # Output:
+// ["abc123", "def456"]
+
