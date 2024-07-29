@@ -75,7 +75,7 @@ const Youtube = {
                 if (expander_contents) {
                     // console.log(`建立樓層:${this.replyFloorCount + index}F`)
                     expander_contents.setAttribute(this.replyFloorAttr, this.replyFloorCount + index)
-                    this.replyDict.set(this.replyFloorCount + index , 1)
+                    this.replyDict.set(this.replyFloorCount + index, 1)
                 }
             })
         this.replyFloorCount += replyDomArray.length;
@@ -101,7 +101,7 @@ const Youtube = {
 /**
  * 為找到的留言新增辨識碼
  * @param {HTMLElement} commentDOM - 留言DOM
- * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] 
+ * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] t 
  */
 const addAttr2Comment = (commentDOM, platform) => {
     //檢查是否為回覆留言
@@ -172,9 +172,13 @@ function waitElement(selector, callback) {
  */
 function launchMutationObserver(observer) {
     // 找到留言區
-    const targetNode = document.querySelectorAll('#sections')[1];
+    const targetNodes = document.querySelectorAll('#sections');
+    const index = Array.from(targetNodes).findIndex(target => target.querySelector("#main"));
+
+    const targetNode = targetNodes[index];
 
     if (targetNode) {
+        console.log(targetNode);
         observer.observe(targetNode, {
             childList: true,
             subtree: true
@@ -190,6 +194,7 @@ window.onload = () => {
         const observer = new MutationObserver((mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type !== 'childList') {
+                    console.log("skip")
                     continue;
                 }
                 const parsedComments = processComments(Youtube)
@@ -199,7 +204,7 @@ window.onload = () => {
                     chrome.storage.local.set({ [videoID]: parsedData.comments }, () => {
                         console.log('Comments saved for videoID:', videoID)
                     })
-                    chrome.storage.local.get(videoID, function(result) {
+                    chrome.storage.local.get(videoID, function (result) {
                         console.log('Retrieved comments:', result[videoID]);
                     });
                 };
@@ -207,6 +212,17 @@ window.onload = () => {
         });
         // 等待找到第一筆留言後 啟動mutation observer
         waitElement(Youtube.selector, () => {
+            const parsedComments = processComments(Youtube)
+            if (parsedComments) {
+                parsedData.comments = [...parsedData.comments, ...parsedComments]
+                const videoID = urlParameters.get('v');
+                chrome.storage.local.set({ [videoID]: parsedData.comments }, () => {
+                    console.log('Comments saved for videoID:', videoID)
+                })
+                chrome.storage.local.get(videoID, function (result) {
+                    console.log('Retrieved comments:', result[videoID]);
+                });
+            };
             launchMutationObserver(observer);
         })
     }
