@@ -109,7 +109,7 @@ const addAttr2Comment = (commentDOM, platform) => {
     if (floorNumber) {
         const currentFloorSerial = platform.replyDict.get(parseInt(floorNumber));
         commentDOM.setAttribute(platform.attr, `${floorNumber}-${currentFloorSerial}`);
-        platform.replyDict.set(floorNumber, currentFloorSerial + 1);
+        platform.replyDict.set(parseInt(floorNumber), currentFloorSerial + 1);
     } else {
         commentDOM.setAttribute(platform.attr, platform.commentCount)
         platform.commentCount += 1;
