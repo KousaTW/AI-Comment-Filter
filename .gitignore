@@ -1,4 +1,5 @@
 icon.ai
+__pycache__
+src/testenv/
 backup.txt
 .env
-test.html
