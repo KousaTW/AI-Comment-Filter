@@ -4,7 +4,29 @@
  * @param {string} model
  * @returns {string} 
  */
-export async function modelGenerate(apiKey, user_prompt, model) {
+const { PROMPT } = ""
+export async function modelGenerate(apiKey, user_prompt, model , individual_categories) {
+    function insertCategories(prompt, data) {
+        let insertionString = "7. Here are other category you need to classify and identify";
+        let other_cat = 0;
+        data.forEach(item => {
+          if (item.Checked) {
+            insertionString += `, ${item.Category_Name} : ${item.Description}`;
+            other_cat = 1;
+          }
+        });
+      
+        let insertPosition = prompt.lastIndexOf('</Filter_Rules>');
+      
+        if (other_cat==1) {
+          prompt = prompt.slice(0, insertPosition) + insertionString + '\n' + prompt.slice(insertPosition);
+        }
+      
+        return prompt;
+      }
+      
+    PROMPT = insertCategories(PROMPT, individual_categories);
+      
     try{
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -13,7 +35,7 @@ export async function modelGenerate(apiKey, user_prompt, model) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                messages: [{ role: "user", content: user_prompt }],
+                messages: [{role: "system", content: PROMPT},{ role: "user", content: user_prompt }],
                 model: model
             })
         });
@@ -25,6 +47,15 @@ export async function modelGenerate(apiKey, user_prompt, model) {
         return "Generation Failed.";
     }
 }
+// Input:
+// user_prompt :
+//   <Comments_List>
+//       <Comments>
+//           <Comment_ID>@user1_1-1</Comment_ID>
+//           <Comment>This is a comment that contains explicit pornographic content.</Comment>
+//       </Comments>
+//   </Comments_List> 
+// individual_categories : [{'Category_Name': 'NSFW', 'Description': '...', 'Checked': true}, {}]
 
 
 /**
@@ -68,22 +99,19 @@ export function convertListToXML(data, outerTag, innerTag) {
  * @returns {Array<string>} 
  */
 export function convertXMLToData(xmlStr) {
-    const regex = /<Comment_ID>(.*?)<\/Comment_ID>/g;
-    const result = [];
-    let match;
+    const regex = /\[.*?\]/g;
+    let match = regex.exec(xmlStr);
 
-    while ((match = regex.exec(xmlStr)) !== null) {
-        result.push(match[1]);
+    if (match !== null) {
+        let result = JSON.parse(match);
+        return result;
     }
-
-    return result;
+    else{
+        return [];
+    }
 }
 
 // Input:
-// <filtered_Comments>
-//     <Comments_ID>abc123</Comments_ID>
-//     <Comments_ID>def456</Comments_ID>
-// </filtered_Comments>
+// [{"id": "asd123", "category": "a"}, {"id": "asd456", "category": "b"}]
 // # Output:
-// ["abc123", "def456"]
-
+// [ { id: 'asd123', category: 'a' }, { id: 'asd456', category: 'b' } ]
