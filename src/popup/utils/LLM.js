@@ -4,6 +4,7 @@
  * @param {string} model
  * @returns {string} 
  */
+import { PROMPT } from "./prompt";
 export async function modelGenerate(apiKey, user_prompt, model) {
     try{
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
