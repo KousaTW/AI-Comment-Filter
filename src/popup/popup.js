@@ -1,17 +1,7 @@
 import { modelGenerate, convertListToXML } from "./utils/LLM.js"
 import { get_categories } from "./utils/categories.js"
 
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-    if (request.task === "generate_comment") {
-        console.log(request);
-    }
-    return true;
-});
-
 // fore-ground
-const expose_filter = document.querySelector('#expose');
-const violence_filter = document.querySelector('#violence');
-const nsfw_filter = document.querySelector('#nsfw');
 const checkbox_container = document.getElementById("checkbox-container")
 const modify_container = document.getElementById("category-modify-container")
 const description_label = document.getElementById("descriptionLabel")
@@ -27,12 +17,6 @@ const model_name_input = document.getElementById("model-name-input");
 const cate_name_input = document.getElementById("cate-name-input")
 const createCateBtn = document.getElementById("create-category-button")
 const confirmDefiniBtn = document.getElementById("confirm-description")
-// checkbox-container
-const expose = document.getElementById("expose")
-const nsfw = document.getElementById("nsfw")
-const custom = document.getElementById("custom")
-
-
 
 // setting
 let isSettingOpen = false;
