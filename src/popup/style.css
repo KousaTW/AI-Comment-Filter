@@ -3,10 +3,12 @@
 :root {
     --white: rgb(255, 255, 255);
     --black: rgb(24, 26, 30);
-
-    --page-width: 250px;
-    --switch-height:16px;
-    --switch-width:36px;
+    --blue: #6198e5;
+    --page-width: 350px;
+    --page-height: 275px;
+    --footer-height: 40px;
+    --switch-height: 16px;
+    --switch-width: 36px;
 
     --black-mask: rgba(0, 0, 0, 0.917);
 
@@ -27,7 +29,8 @@
 }
 
 body {
-    min-width: var(--page-width);
+    width: var(--page-width);
+    height: var(--page-height);
     font-family: 'RocknRoll One', 'Noto Sans TC', sans-serif;
     background-color: var(--black);
 }
@@ -42,13 +45,55 @@ body {
     align-items: center;
 }
 
-.open-setting-btn-container{
+.glowing::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-conic-gradient(from var(--glowing-deg), #0f0, #ff0, #0ff, #f0f, #0ff);
+    animation: rotating 4s linear infinite;
+}
+
+.glowing::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-conic-gradient(from var(--glowing-deg), #0f0, #ff0, #0ff, #f0f, #0ff);
+    animation: rotating 4s linear;
+    filter: blur(40px);
+    opacity: 0.75;
+}
+
+.glowing #glowing-mask {
+    position: absolute;
+    inset: 1px;
+    background: var(--black);
+    z-index: 1;
+}
+
+@property --glowing-deg {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@keyframes rotating {
+    0% {
+        --glowing-deg: 0deg;
+    }
+
+    100% {
+        --glowing-deg: 360deg;
+    }
+}
+
+.open-setting-btn-container {
     position: absolute;
     top: 5px;
     right: 5px;
     z-index: 101;
 }
-.open-setting-btn-container .open-setting-button{
+
+.open-setting-btn-container .open-setting-button {
     width: 25px;
     border-radius: 20%;
     background-color: var(--white);
@@ -57,10 +102,25 @@ body {
     justify-content: center;
     align-items: center;
 }
-.open-setting-btn-container .open-setting-button:hover{
+
+.open-setting-btn-container .open-setting-button:hover {
     cursor: pointer;
+    background-color: var(--blue);
 }
-.back-ground .setting{
+
+.open-setting-btn-container .open-setting-button img {
+    transition: all ease-in-out 0.5s;
+}
+
+.open-setting-btn-container .open-setting-button.open {
+    background-color: var(--blue);
+}
+
+.open-setting-btn-container .open-setting-button.open img {
+    transform: rotate(360deg);
+}
+
+.back-ground .setting {
     top: 0;
     left: 0;
     display: none;
@@ -72,12 +132,14 @@ body {
     flex-direction: column;
     align-items: center;
 }
-.setting h3{
+
+.setting h3 {
     color: var(--white);
     font-size: var(--font-size2);
     margin: 4px 0;
 }
-.setting input{
+
+.setting input {
     padding: 0 8px;
     width: 90%;
     height: 26px;
@@ -87,39 +149,139 @@ body {
     font-size: var(--font-size0);
     border: none;
 }
-.setting input:focus{
+
+.setting input:focus {
     outline: none;
 }
 
-
-.fore-ground{
+.fore-ground {
     margin: 8px 0;
 }
+
 .fore-ground .checkbox-container {
     margin-top: 8px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 4px;
+    padding-inline: 8px;
+    max-height: calc(var(--page-height)*0.78 - var(--footer-height));
+
+    box-sizing: border-box;
+    max-width: var(--page-width);
+    overflow-y: scroll;
 }
-.fore-ground .checkbox-container>div{
+
+.fore-ground .checkbox-container>div:not(.optionsContainer) {
+    box-sizing: border-box;
     display: flex;
     align-items: center;
     justify-items: center;
-    padding: 2px 0;
+
+    max-height: 28px;
+    padding-left: 4px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+.fore-ground .checkbox-container .optionsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    gap: 8px;
+}
+
+.fore-ground .checkbox-container .optionsContainer button {
+    height: 28px;
+    width: 28px;
+    position: relative;
+}
+
+.fore-ground .checkbox-container .optionsContainer img {
+    height: 100%;
+}
+
+.fore-ground .checkbox-container button {
+    font-family: 'RocknRoll One', 'Noto Sans TC', sans-serif;
+    border: 0;
+    padding: 4px;
+    box-sizing: border-box;
+    font-size: (var(--font-size0));
+
+    color: var(--black);
+    background: var(--white);
+    border-radius: 4px;
+}
+
+.fore-ground .checkbox-container button:hover {
+    background-color: var(--blue);
+}
+
+
+.fore-ground #category-modify-container {
+    margin-top: 8px;
+    padding-inline: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fore-ground #category-modify-container .category-name {
+    color: var(--white);
+    font-size: var(--font-size1);
+}
+
+.fore-ground #category-modify-container #description {
+    border: none;
+    padding: 4px;
+
+    width: calc(var(--page-width)*0.9);
+    height: calc(var(--page-height)*0.7 - var(--footer-height));
+    resize: none;
+    align-self: center;
+
+    border-radius: 4px;
+    text-decoration: none;
+    box-sizing: border-box;
+
+    font-size: (var(--font-size0));
+    outline: 0;
+}
+
+.fore-ground #category-modify-container button {
+    font-family: 'RocknRoll One', 'Noto Sans TC', sans-serif;
+    border: 0;
+    padding: 4px;
+    box-sizing: border-box;
+    font-size: (var(--font-size0));
+
+    color: var(--black);
+    background: var(--white);
+    border-radius: 4px;
+}
+
+.fore-ground #category-modify-container button:hover {
+    cursor: pointer;
+    background-color: var(--blue)
+}
 
 .fore-ground .title {
     color: var(--white);
     font-size: var(--font-size1);
-    justify-self: center;
+    text-align: center;
 }
 
 .fore-ground label {
     color: var(--white);
     font-size: var(--switch-height);
 
-    user-select: none; 
+    user-select: none;
     padding-left: 10px;
+}
+
+.fore-ground label:hover {
+    cursor: pointer;
 }
 
 /*  check box Switch */
@@ -129,7 +291,7 @@ body {
     min-height: var(--switch-height);
 
     -webkit-appearance: none;
-    
+
     background: #c6c6c6;
     outline: none;
     border-radius: 20px;
@@ -137,8 +299,12 @@ body {
     /* transition: 0.5s; */
 }
 
+.fore-ground input[type="checkbox"].switch:hover {
+    cursor: pointer;
+}
+
 .fore-ground input:checked[type="checkbox"].switch {
-    background-color: #03a9f4;
+    background-color: var(--blue);
     transition: 0.5s;
 }
 
@@ -146,7 +312,7 @@ body {
     content: "";
     position: absolute;
     width: var(--switch-height);
-    height:var(--switch-height);
+    height: var(--switch-height);
     border-radius: 50%;
     top: 0;
     left: 0;
@@ -160,6 +326,72 @@ body {
     left: calc(var(--switch-width)/2);
 }
 
-.fore-ground .keword-container{
-    padding-inline:5px;
+.fore-ground .keword-container {
+    padding-inline: 5px;
+}
+
+.fore-ground .footer {
+    width: 100%;
+    height: var(--footer-height);
+    position: absolute;
+    padding: 8px;
+    bottom: 0;
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 8px;
+
+    box-sizing: border-box;
+    background: var(--black);
+
+}
+
+.fore-ground .cate-name-input {
+    border: none;
+    padding: 4px;
+
+    min-height: 100%;
+
+    border-radius: 4px;
+    text-decoration: none;
+    box-sizing: border-box;
+
+    font-size: (var(--font-size0));
+}
+
+.fore-ground .cate-name-input:focus {
+    outline: 0;
+}
+
+.fore-ground .footer button {
+    font-family: 'RocknRoll One', 'Noto Sans TC', sans-serif;
+    border: 0;
+    padding: 4px;
+    box-sizing: border-box;
+    font-size: (var(--font-size0));
+
+    color: var(--black);
+    background: var(--white);
+    border-radius: 4px;
+}
+
+.fore-ground .footer button:hover {
+    background: var(--blue);
+    cursor: pointer;
+}
+
+*::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+*::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: #555;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, .3);
+    background-color: var(--blue);
 }

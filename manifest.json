@@ -27,6 +27,7 @@
     {
         "matches": ["https://www.youtube.com/*"],
         "js": ["src/content_script.js"],
+        "css":["src/inject.css"],
         "type": "module"
     }
   ],
