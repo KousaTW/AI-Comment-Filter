@@ -1,5 +1,4 @@
 import { modelGenerate, convertListToXML } from "./utils/LLM.js"
-import { get_categories } from "./utils/categories.js"
 
 // fore-ground
 const checkbox_container = document.getElementById("checkbox-container")
@@ -124,8 +123,7 @@ const getCheckedList = () => {
                 reject(chrome.runtime.lastError);
             } else {
                 let gettingList = result.checkedCategorys;
-
-                if (gettingList.length != 0) {
+                if (gettingList && gettingList.length != 0) {
                     currentCheckedCategorys = new Map(gettingList);
                     // console.log(currentCheckedCategorys);
                 } else {
@@ -172,7 +170,7 @@ const getCategory = () => {
                 reject(chrome.runtime.lastError)
             } else {
                 let gettingDict = result.categoryDict;
-                if (gettingDict.length != 0) {
+                if (gettingDict && gettingDict.length != 0) {
                     currentCategoryDict = new Map(gettingDict);
                 } else {
                     console.log('No map found in storage.');
