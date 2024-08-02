@@ -6,7 +6,6 @@ const checkbox_container = document.getElementById("checkbox-container")
 const modify_container = document.getElementById("category-modify-container")
 const description_label = document.getElementById("descriptionLabel")
 const description_textArea = document.getElementById("description")
-const categories = document.querySelectorAll(".category");
 
 // back-ground
 const openSettingBtn = document.getElementById("open-setting-button");
@@ -59,6 +58,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     sendResponse({"result": "Something Error"});
     return true;
 });
+
 
 // modifyData
 let currentCategoryDict = new Map()

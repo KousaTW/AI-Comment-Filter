@@ -1,3 +1,7 @@
+async function sendMessageToPopup(task_name, data){
+    return await chrome.runtime.sendMessage({ task: task_name, data: data});
+}
+
 /**
  * 留言物件.
  * @typedef {Object} CommentObj
