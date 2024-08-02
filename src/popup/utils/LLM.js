@@ -40,6 +40,7 @@ export async function modelGenerate(apiKey, user_prompt, model , individual_cate
         });
 
         const data = await response.json();
+        console.log(data['choices'][0]['message']['content'])
         return {"result": data['choices'][0]['message']['content']};
     }catch(error) {
         console.error("LLM Error:", error);
