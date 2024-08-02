@@ -38,19 +38,20 @@ model_name_input.addEventListener("input", (e) => {
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     if (request.task === "generate_comment") {
         console.log("get task")
-        // const data = [{"Comment_ID": "1", "Comment": "殺了他"}, {"Comment_ID": "2", "Comment": "我的天啊"}, {"Comment_ID": "3", "Comment": "大奶主播"}, {"Comment_ID": "4", "Comment": "主角會死"}]
-        const data = request.data;
+        const data = [{"Comment_ID": "1", "Comment": "殺了他"}, {"Comment_ID": "2", "Comment": "我的天啊"}, {"Comment_ID": "3", "Comment": "大奶主播"}, {"Comment_ID": "4", "Comment": "主角會死"}]
+        // const data = request.data;
         const input_prompt = convertListToXML(data, "Comments_List", "Comments");
         const _api_key = api_key_input.value;
         const _model_name = model_name_input.value;
-        const _categories = get_categories(categories);
+        const _categories = await processData()
 
         if (data === "" || input_prompt === "" || _api_key === "" || _model_name === ""){
             sendResponse({"result": false});
             return;
         }
-
+        print(_categories)
         const response = await modelGenerate(_api_key, input_prompt, _model_name, _categories);
+        console.log('response:',  response)
         // {result: 'Here is the output in JSON format:\n\n[{"Comment_ID"…\n{"Comment_ID": "4", "Category_Name": "spoiler"}]'}
         sendResponse(response);
     }
@@ -267,8 +268,7 @@ async function init() {
     categoryInit();
     checkboxInit();
 
-    console.log( await processData())
-
+    console.log( await processData());
 }
 window.onload = async () => {
     init();

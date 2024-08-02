@@ -207,8 +207,7 @@ async function retrievedComment(ID, platform) {
 
     currentMaskComment = await getComments(ID);
     // const receiveData = [{ 'Comment_ID': '1-1', 'Category_Name': 'NSFW' }]
-    const receiveData = sendMessageToPopup()
-
+    const receiveData = await sendMessageToPopup()
     currentMaskComment.concat(receiveData)
 
     chrome.storage.local.set({ [ID]: currentMaskComment }, () => {
@@ -231,6 +230,7 @@ async function sendMessageToPopup() {
         }
 
     })
+    console.log('send')
     return await chrome.runtime.sendMessage({ task: "generate_comment", data: sendData })
 }
 /**
