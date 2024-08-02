@@ -15,8 +15,6 @@ export async function modelGenerate(apiKey, user_prompt, model , individual_cate
         data.forEach(item => {
             insertionString += `<Category>${item.Category_Name}</Category> <Description>${item.Description}</Description>\n`;
             other_cat = 1; // to check if there are other categories to insert
-            insertionString += `, ${item.Category_Name} : ${item.Description}`;
-            other_cat = 1;
         });
 
         let insertPosition = prompt.lastIndexOf('</Filter_Rules>');
