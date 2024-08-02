@@ -7,7 +7,6 @@ import { PROMPT } from "./prompt.js"
  * @returns {string}
  */
 
-
 export async function modelGenerate(apiKey, user_prompt, model , individual_categories) {
     function insertCategories(prompt, data) {
         let insertionString = "7. Here are other category and its description in XML format that you need to classify and identify :";
@@ -20,7 +19,7 @@ export async function modelGenerate(apiKey, user_prompt, model , individual_cate
         let insertPosition = prompt.lastIndexOf('</Filter_Rules>');
 
         if (other_cat==1) {
-            prompt = prompt.slice(0, insertPosition) + insertionString + '\n' + prompt.slice(insertPosition);
+          prompt = prompt.slice(0, insertPosition) + insertionString + '\n' + prompt.slice(insertPosition);
         }
 
         return prompt;
@@ -103,7 +102,7 @@ export function convertListToXML(data, outerTag, innerTag) {
  * @param {string} xmlStr
  * @returns {Array<string>}
  */
-export function convertXMLToData(xmlStr) {
+export function convertJSONToData(xmlStr) {
     const regex = /\[.*?\]/g;
     let match = regex.exec(xmlStr);
 

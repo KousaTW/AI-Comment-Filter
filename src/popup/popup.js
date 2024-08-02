@@ -1,4 +1,4 @@
-import { modelGenerate, convertListToXML } from "./utils/LLM.js"
+import { modelGenerate, convertListToXML, convertJSONToData } from "./utils/LLM.js"
 
 // fore-ground
 const checkbox_container = document.getElementById("checkbox-container")
@@ -49,9 +49,15 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
             return;
         }
         const response = await modelGenerate(_api_key, input_prompt, _model_name, _categories);
-        console.log('response:',  response)
         // {result: 'Here is the output in JSON format:\n\n[{"Comment_ID"…\n{"Comment_ID": "4", "Category_Name": "spoiler"}]'}
-        sendResponse(response);
+        if (!response.result){
+            sendResponse({"result": false});
+            return;
+        }
+
+        const result = convertJSONToData(response.result);
+        console.log('response:',  result)
+        sendResponse(result);
     }
 
     sendResponse({"result": "Something Error"});
