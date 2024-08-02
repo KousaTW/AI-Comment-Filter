@@ -60,7 +60,7 @@ const Youtube = {
 
         if (author && content) {
             // console.log(`ID ${ID} , Author: ${author} , content:${content}`)
-            return { Comment_ID: ID, User_ID: author, Comment: content, status: Status.pending };
+            return { Comment_ID: ID, User_ID: author, Comment: content, status: Status.pending, Category_Name: '' };
         }
         return undefined;
     },
@@ -150,9 +150,6 @@ function processComments(platform) {
     if (comments.length > 0) {
         return comments
     }
-
-
-
 }
 /**
  * 
@@ -190,12 +187,119 @@ function launchMutationObserver(observer) {
     }
 }
 
+let timer;
+let currentMaskComment = []
+let currentCheckedCategorys = new Map()
+/**
+ * 在限定時間內沒有重複執行則觸發
+ * @param {String} videoID 
+ * @param {Platform} platform 
+ * @param {number} time - 限定時間ms
+ */
+function sendMessageTimer(videoID, platform, time) {
+    if (timer) {
+        clearTimeout(timer)
+    }
+    timer = setTimeout(retrievedComment(videoID, platform), time)
+}
+/**
+ * 接收處理過的資料並儲存在chrome.storage
+ * @param {String} videoID chrome.storage儲存的key
+ * @param {Platform} platform 
+ */
+async function retrievedComment(ID, platform) {
+
+    currentMaskComment = await getComments(videoID);
+    // const receiveData = [{ 'Comment_ID': '1-1', 'Category_Name': 'NSFW' }]
+    const receiveData = sendMessageToPopup()
+
+    currentMaskComment.concat(receiveData)
+
+    chrome.storage.local.set({ [ID]: currentMaskComment }, () => {
+        console.log('Comments saved for ID:', ID)
+    })
+
+    maskOriginData(ID, platform)
+}
+/**
+ * 送出資料給Popup獲得回傳的資料
+ * @returns 
+ */
+async function sendMessageToPopup() {
+    let sendData = []
+    parsedData.comments.forEach(commentObj => {
+        if (commentObj.status == Status.pending) {
+            commentObj.status = Status.done
+            const { Comment_ID, Comment } = commentObj
+            sendData.push({ "Comment_ID": Comment_ID, 'Comment': Comment })
+        }
+
+    })
+    return await chrome.runtime.sendMessage({ task: "generate_comment", data: sendData })
+}
+/**
+ * 遮住留言
+ * @param {String} videoID 
+ * @param {Platform} platform 
+ */
+async function maskOriginData(videoID, platform) {
+    //更新最新設定
+    await getComments(videoID);
+    await getCheckedCategory();
+
+    currentMaskComment.forEach(comment => {
+        if (currentCheckedCategorys.has(comment.Category_Name)) {
+            const commentDom = document.querySelector(`[${platform.attr}=${comment.Comment_ID}]`)
+            commentDom.classList.add('filterMask')
+        }
+    })
+}
+
+const getComments = (videoID) => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get([videoID], function (result) {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                let gettingComments = result.videoID;
+
+                if (gettingList.length != 0) {
+                    currentMaskComment = gettingComments;
+                } else {
+                    console.log('No Comments found in storage.');
+                }
+                resolve();
+            }
+        });
+    });
+};
+
+const getCheckedCategory = () => {
+    return new Promise((resolve, reject) => {
+        chrome.storage.local.get('checkedCategorys', function (result) {
+            if (chrome.runtime.lastError) {
+                reject(chrome.runtime.lastError);
+            } else {
+                let gettingList = result.checkedCategorys;
+
+                if (gettingList.length != 0) {
+                    currentCheckedCategorys = new Map(gettingList);
+                } else {
+                    console.log('No checkedList found in storage.');
+                }
+                resolve();
+            }
+        });
+    });
+};
+
+
 window.onload = () => {
     if (document.URL.includes("https://www.youtube.com/watch")) {
 
         const queryParameters = document.URL.split("?")[1];
         const urlParameters = new URLSearchParams(queryParameters);
-        const observer = new MutationObserver((mutationsList) => {
+        const observer = new MutationObserver(async (mutationsList) => {
             for (const mutation of mutationsList) {
                 if (mutation.type !== 'childList') {
                     console.log("skip")
@@ -204,29 +308,15 @@ window.onload = () => {
                 const parsedComments = processComments(Youtube)
                 if (parsedComments) {
                     parsedData.comments = [...parsedData.comments, ...parsedComments]
+
                     const videoID = urlParameters.get('v');
-                    chrome.storage.local.set({ [videoID]: parsedData.comments }, () => {
-                        console.log('Comments saved for videoID:', videoID)
-                    })
-                    chrome.storage.local.get(videoID, function (result) {
-                        console.log('Retrieved comments:', result[videoID]);
-                    });
+
+                    sendMessageTimer(videoID, Youtube, 500);
                 };
             }
         });
         // 等待找到第一筆留言後 啟動mutation observer
         waitElement(Youtube.selector, () => {
-            const parsedComments = processComments(Youtube)
-            if (parsedComments) {
-                parsedData.comments = [...parsedData.comments, ...parsedComments]
-                const videoID = urlParameters.get('v');
-                chrome.storage.local.set({ [videoID]: parsedData.comments }, () => {
-                    console.log('Comments saved for videoID:', videoID)
-                })
-                chrome.storage.local.get(videoID, function (result) {
-                    console.log('Retrieved comments:', result[videoID]);
-                });
-            };
             launchMutationObserver(observer);
         })
     }

@@ -7,6 +7,7 @@ import { PROMPT } from "./prompt.js"
  * @returns {string}
  */
 
+
 export async function modelGenerate(apiKey, user_prompt, model , individual_categories) {
     function insertCategories(prompt, data) {
         let insertionString = "7. Here are other category and its description in XML format that you need to classify and identify :";

@@ -1,0 +1,9 @@
+.filterMask{
+    background-color: black;
+    color: black;
+}
+
+.filterMask *{
+    background-color: black;
+    color: black;
+}
