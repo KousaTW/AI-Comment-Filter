@@ -204,7 +204,6 @@ function sendMessageTimer(videoID, platform, time) {
  * @param {Platform} platform 
  */
 async function retrievedComment(ID, platform) {
-
     currentMaskComment = await getComments(ID);
     // const receiveData = [{ 'Comment_ID': '1-1', 'Category_Name': 'NSFW' }]
     const receiveData = await sendMessageToPopup()
@@ -230,7 +229,6 @@ async function sendMessageToPopup() {
         }
 
     })
-    console.log('send')
     return await chrome.runtime.sendMessage({ task: "generate_comment", data: sendData })
 }
 /**
@@ -259,7 +257,7 @@ const getComments = (videoID) => {
             } else {
                 let gettingComments = result.videoID;
 
-                if (gettingList.length != 0) {
+                if (gettingComments && gettingList.length != 0) {
                     currentMaskComment = gettingComments;
                 } else {
                     console.log('No Comments found in storage.');
