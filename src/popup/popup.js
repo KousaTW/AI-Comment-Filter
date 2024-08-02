@@ -44,7 +44,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         const _model_name = model_name_input.value;
         const _categories = await processData()
 
-        if (data === "" || input_prompt === "" || _api_key === "" || _model_name === ""){
+        if (data === "" || data.length === 0 || _categories.length == 0 || input_prompt === "" || _api_key === "" || _model_name === ""){
             sendResponse({"result": false});
             return;
         }
@@ -56,6 +56,10 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
         }
 
         const result = convertJSONToData(response.result);
+        if (result.length == 0){
+            sendResponse({"result": false});
+            return;
+        }
         console.log('response:',  result)
         sendResponse(result);
     }
