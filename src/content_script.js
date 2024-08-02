@@ -229,6 +229,7 @@ async function sendMessageToPopup() {
         }
 
     })
+    console.log('send')
     return await chrome.runtime.sendMessage({ task: "generate_comment", data: sendData })
 }
 /**
@@ -305,7 +306,7 @@ window.onload = () => {
 
                     const videoID = urlParameters.get('v');
 
-                    sendMessageTimer(videoID, Youtube, 500);
+                    sendMessageTimer(videoID, Youtube, 2000);
                 };
             }
         });
