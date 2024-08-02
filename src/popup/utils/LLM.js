@@ -6,11 +6,14 @@ import { PROMPT } from "./prompt.js"
  * @param {string} model
  * @returns {string}
  */
+
 export async function modelGenerate(apiKey, user_prompt, model , individual_categories) {
     function insertCategories(prompt, data) {
-        let insertionString = "7. Here are other category you need to classify and identify";
+        let insertionString = "7. Here are other category and its description in XML format that you need to classify and identify :";
         let other_cat = 0;
         data.forEach(item => {
+            insertionString += `<Category>>${item.Category_Name}</Category> <Description>${item.Description}</Description>\n`;
+            other_cat = 1; // to check if there are other categories to insert
             insertionString += `, ${item.Category_Name} : ${item.Description}`;
             other_cat = 1;
         });
