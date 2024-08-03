@@ -311,8 +311,10 @@ window.onload = () => {
             }
         });
         // 等待找到第一筆留言後 啟動mutation observer
-        waitElement(Youtube.selector, () => {
-            launchMutationObserver(observer);
+        waitElement(Youtube.selector, async () => {
+            // launchMutationObserver(observer);
+            const receiveData = await chrome.runtime.sendMessage({ task: "generate_comment", data: {"data": "123456"} })
+            console.log('receiveData:', receiveData)
         })
     }
 }

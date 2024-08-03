@@ -1,4 +1,5 @@
 import { modelGenerate, convertListToXML, convertJSONToData } from "./utils/LLM.js"
+import { wrapAsyncFunction } from "./utils/chrome_functions.js"
 
 // fore-ground
 const checkbox_container = document.getElementById("checkbox-container")
@@ -34,39 +35,31 @@ model_name_input.addEventListener("input", (e) => {
 })
 
 
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
-    if (request.task === "generate_comment") {
-        console.log("get task")
-        // const data = [{"Comment_ID": "1", "Comment": "殺了他"}, {"Comment_ID": "2", "Comment": "我的天啊"}, {"Comment_ID": "3", "Comment": "大奶主播"}, {"Comment_ID": "4", "Comment": "主角會死"}]
-        const data = request.data;
-        const input_prompt = convertListToXML(data, "Comments_List", "Comments");
-        const _api_key = api_key_input.value;
-        const _model_name = model_name_input.value;
-        const _categories = await processData()
+chrome.runtime.onMessage.addListener(
+    wrapAsyncFunction(async (request, sender) => {
+        if (request.task === "generate_comment") {
+            // const data = [{"Comment_ID": "1", "Comment": "殺了他"}, {"Comment_ID": "2", "Comment": "我的天啊"}, {"Comment_ID": "3", "Comment": "大奶主播"}, {"Comment_ID": "4", "Comment": "主角會死"}]
+            const data = request.data;
+            const input_prompt = convertListToXML(data, "Comments_List", "Comments");
+            const _api_key = api_key_input.value;
+            const _model_name = model_name_input.value;
+            const _categories = await processData();
+            if (data === "" || data.length === 0 || _categories.length == 0 || input_prompt === "" || _api_key === "" || _model_name === "")
+                return {"result": false};
+    
+            const response = await modelGenerate(_api_key, input_prompt, _model_name, _categories);
+            // {result: 'Here is the output in JSON format:\n\n[{"Comment_ID"…\n{"Comment_ID": "4", "Category_Name": "spoiler"}]'}
+            if (!response.result)
+                return {"result": false};
 
-        if (data === "" || data.length === 0 || _categories.length == 0 || input_prompt === "" || _api_key === "" || _model_name === ""){
-            sendResponse({"result": false});
-            return;
+            const result = convertJSONToData(response.result);
+            if (result.length == 0)
+                return {"result": false};
+            
+            return result;
         }
-        const response = await modelGenerate(_api_key, input_prompt, _model_name, _categories);
-        // {result: 'Here is the output in JSON format:\n\n[{"Comment_ID"…\n{"Comment_ID": "4", "Category_Name": "spoiler"}]'}
-        if (!response.result){
-            sendResponse({"result": false});
-            return;
-        }
-
-        const result = convertJSONToData(response.result);
-        if (result.length == 0){
-            sendResponse({"result": false});
-            return;
-        }
-        console.log('response:',  result)
-        sendResponse(result);
-    }
-
-    sendResponse({"result": "Something Error"});
-    return true;
-});
+    })
+);
 
 
 // modifyData
@@ -275,7 +268,7 @@ async function init() {
     categoryInit();
     checkboxInit();
 
-    console.log( await processData());
+    // console.log( await processData());
 }
 window.onload = async () => {
     init();
