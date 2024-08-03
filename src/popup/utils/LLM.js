@@ -1,30 +1,28 @@
 import { PROMPT } from "./prompt.js"
 
+
+function insertCategories(prompt, data) {
+    let insertionString = "7. Here are other category and its description in XML format that you need to classify and identify :";
+    let other_cat = 0;
+    data.forEach(item => {
+        insertionString += `<Category>${item.Category_Name}</Category> <Description>${item.Description}</Description>\n`;
+        other_cat = 1; // to check if there are other categories to insert
+    });
+
+    let insertPosition = prompt.lastIndexOf('</Filter_Rules>');
+    if (other_cat==1) {
+        prompt = prompt.slice(0, insertPosition) + insertionString + '\n' + prompt.slice(insertPosition);
+    }
+    return prompt;
+}
+
 /**
  * @param {string} apiKey
  * @param {string} user_prompt
  * @param {string} model
  * @returns {string}
  */
-
 export async function modelGenerate(apiKey, user_prompt, model , individual_categories) {
-    function insertCategories(prompt, data) {
-        let insertionString = "7. Here are other category and its description in XML format that you need to classify and identify :";
-        let other_cat = 0;
-        data.forEach(item => {
-            insertionString += `<Category>${item.Category_Name}</Category> <Description>${item.Description}</Description>\n`;
-            other_cat = 1; // to check if there are other categories to insert
-        });
-
-        let insertPosition = prompt.lastIndexOf('</Filter_Rules>');
-
-        if (other_cat==1) {
-          prompt = prompt.slice(0, insertPosition) + insertionString + '\n' + prompt.slice(insertPosition);
-        }
-
-        return prompt;
-    }
-
     const system_prompt = insertCategories(PROMPT, individual_categories);
     try{
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
@@ -104,7 +102,7 @@ export function convertListToXML(data, outerTag, innerTag) {
  * @returns {Array<string>}
  */
 export function convertJSONToData(xmlStr) {
-    const regex = /\[.*?\]/g;
+    const regex = /\[\s*[\s\S]*?\s*\]/g;
     let match = regex.exec(xmlStr);
 
     if (match !== null) {
