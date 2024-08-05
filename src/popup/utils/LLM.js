@@ -24,9 +24,10 @@ const RequestCounter = (() => {
 function insertCategories(prompt, data) {
     let insertionString = "";
     let other_cat = 0;
-    let cate_id = 3;
+    let cate_id = 1;
     data.forEach(item => {
-        insertionString += `${cate_id+1}. ${item.Category_Name}: ${item.Description}\n`;
+        cate_id += 1
+        insertionString += `${cate_id}. ${item.Category_Name}: ${item.Description}\n`;
         other_cat = 1; // to check if there are other categories to insert
     });
 

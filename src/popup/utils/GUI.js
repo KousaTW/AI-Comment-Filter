@@ -65,7 +65,7 @@ export const Category = {
                         console.log('No map found in storage.');
                     }
                 }
-
+                resolve(new Map())
             });
         })
     },
@@ -242,9 +242,9 @@ class categoryDiv extends HTMLDivElement {
 
 customElements.define('category-div', categoryDiv, { extends: 'div' });
 
-const Init = () => {
+const Init = async () => {
     ForeGround.init();
     ModifyPage.init();
-    Category.init();
+    await Category.init();
 }
 export default Init;

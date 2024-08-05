@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener(
             const input_prompt = convertListToXML(data, "Comments_List", "Comments");
             const _api_key = api_key_input.value;
             const _model_name = model_name_input.value;
-            const _categories = await processData();
+            const _categories = await Category.getResult();
             if (data === "" || data.length === 0 || _categories.length == 0 || input_prompt === "" || _api_key === "" || _model_name === "")
                 return {"result": false};
     

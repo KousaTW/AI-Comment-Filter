@@ -26,8 +26,6 @@ Base on a string of <Comment> and corresponding <Comment_ID> in XML format <Comm
 
 # Categories and Definitions #
 1. Normal: The contents of these messages are usually general discussions, questions, and comments without any special tagging requirements. This type of message can be a friendly exchange, advice or a general word of thanks.
-2. Spoiler: The act of leaking the content of plot-related works (such as novels, TV series, movies, comics, and games, etc). The content usually involves the core of the story, line or ending. Therefore, it is generally believed that readers who have not watched the original work may be less interested in enjoying the original work after learning about the spoiler content. Example: The character will win the race.
-3. NSFW: Content that is not suitable for viewing during working hours and may offend your boss or colleagues. This usually refers to nudity, violence, pornography or offensive remarks.
 
 <Filter_Rules>
 1. Carefully read through each comment in the <Comments_List>.

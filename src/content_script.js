@@ -314,14 +314,14 @@ const getComments = (videoID) => {
             if (chrome.runtime.lastError) {
                 reject(chrome.runtime.lastError);
             } else {
-                let gettingComments = result.videoID;
+                let _gettingComments = result.videoID;
 
-                if (gettingComments && gettingList.length != 0) {
-                    currentMaskComment = gettingComments;
+                if (_gettingComments && gettingList.length != 0) {
+                    resolve(_gettingComments);
                 } else {
                     console.log('No Comments found in storage.');
+                    resolve([]);
                 }
-                resolve();
             }
         });
     });
@@ -372,8 +372,7 @@ window.onload = () => {
         });
         // 等待找到第一筆留言後 啟動mutation observer
         waitElement(Youtube.selector, async () => {
-            // launchMutationObserver(observer);
-            const receiveData = await chrome.runtime.sendMessage({ task: "generate_comment", data: {"data": "123456"} })
+            launchMutationObserver(observer);
             console.log('receiveData:', receiveData)
         })
     }
