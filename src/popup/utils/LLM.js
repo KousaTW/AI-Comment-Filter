@@ -51,6 +51,11 @@ export async function modelGenerate(apiKey, user_prompt, model, individual_categ
         return {"result": false};
     }
 
+    if (user_prompt=="") {
+        console.error("Comment is empty.");
+        return {"result": false};
+    }
+
     try{
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
