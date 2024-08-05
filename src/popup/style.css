@@ -160,9 +160,10 @@ body {
 
 .fore-ground .checkbox-container {
     margin-top: 8px;
-    display: grid;
-    grid-template-columns: 3fr 1fr;
+    display: flex;
+    flex-direction: column;
     gap: 4px;
+
     padding-inline: 8px;
     max-height: calc(var(--page-height)*0.78 - var(--footer-height));
 
@@ -171,39 +172,32 @@ body {
     overflow-y: scroll;
 }
 
-.fore-ground .checkbox-container>div:not(.optionsContainer) {
-    box-sizing: border-box;
-    display: flex;
+.fore-ground .checkbox-container>div {
+    display: grid;
+    grid-template-columns: var(--switch-width) 4fr 1fr 1fr;
     align-items: center;
-    justify-items: center;
-
-    max-height: 28px;
-    padding-left: 4px;
-
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
-.fore-ground .checkbox-container .optionsContainer {
-    display: flex;
-    align-items: center;
-    justify-content: end;
-    gap: 8px;
-}
-
-.fore-ground .checkbox-container .optionsContainer button {
+.fore-ground .checkbox-container button {
     height: 28px;
     width: 28px;
     position: relative;
 }
 
-.fore-ground .checkbox-container .optionsContainer img {
+.fore-ground .checkbox-container button:hover {
+    cursor: pointer;
+}
+
+.fore-ground .checkbox-container img {
     height: 100%;
 }
 
 .fore-ground .checkbox-container button {
     font-family: 'RocknRoll One', 'Noto Sans TC', sans-serif;
+
+    height: 28px;
+    width: 28px;
+    position: relative;
     border: 0;
     padding: 4px;
     box-sizing: border-box;
@@ -212,6 +206,8 @@ body {
     color: var(--black);
     background: var(--white);
     border-radius: 4px;
+
+    justify-self: center;
 }
 
 .fore-ground .checkbox-container button:hover {
@@ -287,8 +283,8 @@ body {
 /*  check box Switch */
 .fore-ground input[type="checkbox"].switch {
     position: relative;
-    min-width: var(--switch-width);
-    min-height: var(--switch-height);
+    width: var(--switch-width);
+    height: var(--switch-height);
 
     -webkit-appearance: none;
 
