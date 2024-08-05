@@ -1,15 +1,36 @@
 import { PROMPT } from "./prompt.js"
 
+const RequestCounter = (() => {
+    let currentRequests = 0;
+    const maxRequests = 20;
+    return {
+        increment: () => {
+            if (currentRequests < maxRequests) {
+                currentRequests++;
+                return true;
+            }
+            return false;
+        },
+        decrement: () => {
+            if (currentRequests > 0) {
+                currentRequests--;
+            }
+        }
+    };
+})();
+
+
 
 function insertCategories(prompt, data) {
-    let insertionString = "7. Here are other category and its description in XML format that you need to classify and identify :";
+    let insertionString = "";
     let other_cat = 0;
+    let cate_id = 3;
     data.forEach(item => {
-        insertionString += `<Category>${item.Category_Name}</Category> <Description>${item.Description}</Description>\n`;
+        insertionString += `${cate_id+1}. ${item.Category_Name}: ${item.Description}\n`;
         other_cat = 1; // to check if there are other categories to insert
     });
 
-    let insertPosition = prompt.lastIndexOf('</Filter_Rules>');
+    let insertPosition = prompt.lastIndexOf('<Filter_Rules>');
     if (other_cat==1) {
         prompt = prompt.slice(0, insertPosition) + insertionString + '\n' + prompt.slice(insertPosition);
     }
@@ -22,8 +43,14 @@ function insertCategories(prompt, data) {
  * @param {string} model
  * @returns {string}
  */
-export async function modelGenerate(apiKey, user_prompt, model , individual_categories) {
+export async function modelGenerate(apiKey, user_prompt, model, individual_categories) {
     const system_prompt = insertCategories(PROMPT, individual_categories);
+
+    if (!RequestCounter.increment()) {
+        console.error("Too many requests.");
+        return {"result": false};
+    }
+
     try{
         const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
             method: "POST",
@@ -43,6 +70,8 @@ export async function modelGenerate(apiKey, user_prompt, model , individual_cate
     }catch(error) {
         console.error("LLM Error:", error);
         return {"result": false};
+    }finally {
+        RequestCounter.decrement();
     }
 }
 // Input:
