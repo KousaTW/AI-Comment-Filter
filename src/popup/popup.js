@@ -3,7 +3,7 @@ import { wrapAsyncFunction } from "./utils/chrome_functions.js"
 
 // fore-ground
 import GUI_init from './utils/GUI.js'
-
+import { Category } from './utils/GUI.js'
 
 // back-ground
 const openSettingBtn = document.getElementById("open-setting-button");
