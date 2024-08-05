@@ -263,7 +263,7 @@ const processData = async() => {
 async function init() {
     let { api_key, model_name } = await chrome.storage.sync.get(["api_key", "model_name"]);
     api_key_input.value = api_key || "";
-    model_name_input.value = model_name || "llama3-70b-8192";
+    model_name_input.value = model_name || "llama3-groq-70b-8192-tool-use-preview";
 
     categoryInit();
     checkboxInit();
