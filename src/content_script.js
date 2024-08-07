@@ -49,7 +49,6 @@ const Youtube = {
 
 
         if (author && content) {
-            // console.log(`ID ${ID} , Author: ${author} , content:${content}`)
             return { Comment_ID: ID, User_ID: author, Comment: content, status: Status.pending, Category_Name: '' };
         }
         return undefined;
@@ -67,9 +66,8 @@ const Youtube = {
                 // 確認子元素是否含有#expander-contents
                 const expander_contents = replyDom.querySelector('#expander-contents')
                 if (expander_contents) {
-                    // console.log(`建立樓層:${this.replyFloorCount + index}F`)
                     expander_contents.setAttribute(this.replyFloorAttr, this.replyFloorCount + index)
-                    this.replyDict.set(this.replyFloorCount + index, 1)
+                    this.replyDict.set(parseInt(this.replyFloorCount + index), 1)
                 }
             })
         this.replyFloorCount += replyDomArray.length;
@@ -100,10 +98,12 @@ const CommentMethod = {
      * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] t 
      */
     addAttribute: function (commentDOM, platform) {
-        const _floorNumber = platform.checkFloor(commentDOM);
+        let _floorNumber = platform.checkFloor(commentDOM);
         if (_floorNumber) {
             // Reply Comment
-            const _currentFloorNum = platform.replyDict.get(parseInt(_floorNumber));
+            _floorNumber = parseInt(_floorNumber)
+            let _currentFloorNum = platform.replyDict.get(_floorNumber);
+            _currentFloorNum = _currentFloorNum;
             commentDOM.setAttribute(platform.attr, `${_floorNumber}-${_currentFloorNum}`);
             // update floor dict
             platform.replyDict.set(_floorNumber, _currentFloorNum + 1);
@@ -137,50 +137,6 @@ const CommentMethod = {
     }
 
 }
-
-// /**
-//  * 為找到的留言新增辨識碼
-//  * @param {HTMLElement} commentDOM - 留言DOM
-//  * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] t 
-//  */
-// const addAttr2Comment = (commentDOM, platform) => {
-//     //檢查是否為回覆留言
-//     const floorNumber = platform.checkFloor(commentDOM)
-//     if (floorNumber) {
-//         const currentFloorSerial = platform.replyDict.get(parseInt(floorNumber));
-//         commentDOM.setAttribute(platform.attr, `${floorNumber}-${currentFloorSerial}`);
-//         platform.replyDict.set(parseInt(floorNumber), currentFloorSerial + 1);
-//     } else {
-//         commentDOM.setAttribute(platform.attr, platform.commentCount)
-//         platform.commentCount += 1;
-//     }
-
-
-// }
-
-// /**
-//  * 使用各平台留言方法處理留言
-//  * @param {Platform} platform - 瀏覽的平台 Ex:[Youtube] 
-//  * @returns {Array[CommentObj]} 
-//  */
-
-// function processComments(platform) {
-//     // 建立樓層    
-//     platform.createFloor();
-//     // 獲取留言
-//     let _comments = document.querySelectorAll(platform.selector);
-//     _comments = Array.from(_comments)
-//         .filter((comment) => !comment.hasAttribute(platform.attr)) // 過濾出還沒設定commentAttribute的留言
-//         .map((comment) => {
-//             addAttr2Comment(comment, platform); // 留言添加Attribute
-//             return platform.commentParse(comment); // 留言解析
-//         })
-//         .filter(comment => comment !== undefined);
-
-//     if (_comments.length > 0) {
-//         return _comments
-//     }
-// }
 
 const Global = {
     timer: null,
@@ -226,19 +182,6 @@ function launchMutationObserver(observer) {
 }
 
 
-// /**
-//  * 在限定時間內沒有重複執行則觸發
-//  * @param {String} videoID 
-//  * @param {Platform} platform 
-//  * @param {number} time - 限定時間ms
-//  */
-// function sendMessageTimer(videoID, platform, time) {
-//     if (timer) {
-//         clearTimeout(timer)
-//     }
-//     timer = setTimeout(retrievedComment(videoID, platform), time)
-// }
-
 const getCurrentTime = () => {
     let timeStamp = Date.now()
     let date = new Date(timeStamp)
@@ -259,12 +202,15 @@ async function retrievedComment(ID, platform, test = false) {
     }
 
     const _receiveData = await sendMessageToPopup()
+    console.log('_receiveData', _receiveData)
     // 結合資料
-    Global.processedComments.concat(_receiveData)
-    // 儲存資料
-    setComments(ID, Global.processedComments)
+    if (_receiveData && _receiveData.length > 0){
+        Global.processedComments = [...Global.processedComments, ..._receiveData]
+        // 儲存資料
+        setComments(ID, Global.processedComments)
+    }
     // 根據資料遮住留言
-    maskOriginData(platform)
+    await maskOriginData(platform)
 }
 /**
  * 送出資料給Popup獲得回傳的資料
@@ -281,8 +227,13 @@ async function sendMessageToPopup() {
             _sendData.push({ "Comment_ID": Comment_ID, 'Comment': Comment });
         }
     })
+
+
     if (_sendData.length > 0) {
-        return await chrome.runtime.sendMessage({ task: "generate_comment", data: _sendData });
+        console.log('_sendData :', _sendData)
+        const _result = await chrome.runtime.sendMessage({ task: "generate_comment", data: _sendData });
+        console.log('_result :', _result)
+        return _result
     }
 }
 /**
@@ -294,10 +245,17 @@ async function maskOriginData(platform) {
     //更新最新設定
     Global.CheckedCategorys = await getCheckedCategory();
 
+    console.log('Global.processedComments', Global.processedComments)
+
     Global.processedComments.forEach(_comment => {
-        if (Global.CheckedCategorys.has(_comment.Category_Name)) {
-            const _commentDom = document.querySelector(`[${platform.attr}=${_comment.Comment_ID}]`)
+
+        const  _category = _comment.Category || _comment.Category_Name;
+
+        if (Global.CheckedCategorys.has(_category)) {
+            const _commentDom = document.querySelector(`[${platform.attr}="${_comment.Comment_ID}"]`)
             _commentDom.classList.add('filterMask')
+
+            console.log(`mask on [${platform.attr}="${_comment.Comment_ID}"]`)
         }
     })
 }
@@ -315,7 +273,6 @@ const getComments = (videoID) => {
                 reject(chrome.runtime.lastError);
             } else {
                 let _gettingComments = result.videoID;
-
                 if (_gettingComments && gettingList.length != 0) {
                     resolve(_gettingComments);
                 } else {
@@ -358,8 +315,8 @@ window.onload = () => {
                 }
                 const _videoID = urlParameters.get('v')
                 clearTimeout(Global.timer)
-                
-                console.log('clear Timeout',getCurrentTime())
+
+                console.log('clear Timeout', getCurrentTime())
                 Global.timer = setTimeout(function () {
                     retrievedComment(_videoID, Youtube)
                 }, 500)
@@ -373,7 +330,6 @@ window.onload = () => {
         // 等待找到第一筆留言後 啟動mutation observer
         waitElement(Youtube.selector, async () => {
             launchMutationObserver(observer);
-            console.log('receiveData:', receiveData)
         })
     }
 }

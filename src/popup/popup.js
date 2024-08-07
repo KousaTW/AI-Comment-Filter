@@ -40,17 +40,17 @@ chrome.runtime.onMessage.addListener(
             const _model_name = model_name_input.value;
             const _categories = await Category.getResult();
             if (data === "" || data.length === 0 || _categories.length == 0 || input_prompt === "" || _api_key === "" || _model_name === "")
-                return {"result": false};
-    
+                return { "result": false };
+
             const response = await modelGenerate(_api_key, input_prompt, _model_name, _categories);
             // {result: 'Here is the output in JSON format:\n\n[{"Comment_ID"…\n{"Comment_ID": "4", "Category_Name": "spoiler"}]'}
             if (!response.result)
-                return {"result": false};
+                return { "result": false };
 
             const result = convertJSONToData(response.result);
             if (result.length == 0)
-                return {"result": false};
-            
+                return { "result": false };
+            console.log('popup result', result)
             return result;
         }
     })
