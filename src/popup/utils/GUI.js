@@ -1,6 +1,7 @@
 const defaultCategory = new Map([
     ['Spoiler', `The act of leaking the content of plot-related works (such as novels, TV series, movies, comics, and games, etc). The content usually involves the core of the story, line or ending. Therefore, it is generally believed that readers who have not watched the original work may be less interested in enjoying the original work after learning about the spoiler content. Example: The character will win the race.`],
-    ['NSFW', `Content that is not suitable for viewing during working hours and may offend your boss or colleagues. This usually refers to nudity, violence, pornography or offensive remarks.`],
+    ['Violence', `Sentences containing abusive, insulting words, or offensive words.Which may harm others physically or mentally. Example: He is such a nerd , too stupid.`],
+    ['pornography',`Pornography may contain sexual innuendos, sexual representations of men and women, or even sexually exploitative remarks  Example: Her boobs are too big . I like it .`]
 ])
 
 export const Category = {
