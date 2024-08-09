@@ -1,3 +1,53 @@
+function open_close_page(){
+    const root = document.querySelector("#ai_comments_filter_extension_root");
+    if(root){
+        root.style.display = root.style.display == "flex" ? "none" : "flex";
+    }else{
+        createIframe();
+    }
+}
+
+function createIframe() {
+    const root = document.createElement("div");
+    root.id = "ai_comments_filter_extension_root";
+    root.style.cssText = `
+        position: fixed;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-end;
+        width: 360px;
+        height: 280px;
+        top:0;
+        right:0;
+        z-index: 2147483647;
+    `;
+
+    const iframe = document.createElement("iframe");
+    iframe.id = "iframe-in-root";
+    iframe.sandbox = "allow-scripts allow-same-origin allow-forms";
+    iframe.setAttribute("allowFullScreen", "");
+    iframe.style.cssText = `
+        width: 350px;
+        height: 275px;
+        border: 0;
+        margin: 0;
+        z-index: 2147483647;
+        background-color: #EAEAEA;
+        border: 1px solid #EAEAEA;
+        filter: none;
+        display: block;
+    `;
+    iframe.src = chrome.runtime.getURL("src/iframe/index.html");
+    
+    document.body.appendChild(root);
+    root.prepend(iframe);
+}
+
+
+
+
+
+
 /**
  * 留言物件.
  * @typedef {Object} CommentObj
@@ -302,10 +352,15 @@ const getCheckedCategory = () => {
     });
 };
 
+document.body.addEventListener("keydown", (e)=>{
+    if(e.key == "x")
+        open_close_page();
+} ,false)
 
 window.onload = () => {
     if (document.URL.includes("https://www.youtube.com/watch")) {
-
+        open_close_page();
+        
         const queryParameters = document.URL.split("?")[1];
         const urlParameters = new URLSearchParams(queryParameters);
         const observer = new MutationObserver(async (mutationsList) => {

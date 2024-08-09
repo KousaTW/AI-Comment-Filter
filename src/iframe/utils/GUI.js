@@ -202,7 +202,7 @@ class categoryDiv extends HTMLDivElement {
 
     createModifyButton() {
         this.modifyButton = document.createElement('button');
-        this.modifyButton.innerHTML = '<img src=modify.png>';
+        this.modifyButton.innerHTML = '<img src=./images/modify.png>';
         this.modifyButton.addEventListener('click', () => {
             ModifyPage.update(this.name, this.fixed)
             // Hide DOM
@@ -218,7 +218,7 @@ class categoryDiv extends HTMLDivElement {
 
     createDeleteButton() {
         this.deleteButton = document.createElement('button');
-        this.deleteButton.innerHTML = '<img src=delete.png>';
+        this.deleteButton.innerHTML = '<img src=./images/delete.png>';
         this.deleteButton.addEventListener('click', () => {
             Category.delete(this.name)
             this.remove();

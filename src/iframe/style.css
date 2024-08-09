@@ -45,6 +45,14 @@ body {
     align-items: center;
 }
 
+.container .header{
+    font-size: 18px;
+    padding: 4px;
+    color: white;
+    background-color: black;
+    text-align: center;
+}
+
 .glowing::before {
     content: '';
     position: absolute;

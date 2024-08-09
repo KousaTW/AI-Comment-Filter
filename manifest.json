@@ -1,40 +1,29 @@
 {
   "name": "Comment Filter",
   "description": "rough design",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "manifest_version": 3,
   "permissions": [
     "storage",
     "tabs",
     "activeTab"
   ],
-  "action": {
-    "default_popup": "/src/popup/index.html",
-    "default_icon": {
-      "16": "/src/images/icon16.png",
-      "32": "/src/images/icon32.png",
-      "48": "/src/images/icon48.png",
-      "128": "/src/images/icon128.png"
-    }
-  },
   "icons": {
-    "16": "/src/images/icon16.png",
+    "16": "src/images/icon16.png",
     "32": "src/images/icon32.png",
-    "48": "/src/images/icon48.png",
-    "128": "/src/images/icon128.png"
+    "48": "src/images/icon48.png",
+    "128": "src/images/icon128.png"
   },
+  "web_accessible_resources": [{ 
+      "resources": ["src/iframe/index.html"],
+      "matches": ["https://www.youtube.com/*"]
+  }],
   "content_scripts": [
     {
         "matches": ["https://www.youtube.com/*"],
         "js": ["src/content_script.js"],
         "css":["src/inject.css"],
         "type": "module"
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": ["src/*.js"],
-      "matches": ["https://www.youtube.com/*"]
     }
   ]
 }
