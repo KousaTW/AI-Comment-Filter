@@ -356,6 +356,9 @@ document.body.addEventListener("keydown", (e)=>{
 }, false)
 
 window.onload = () => {
+    if (!document.URL.includes("https://www.youtube.com/watch"))
+        return;
+
     open_close_page();
     
     const queryParameters = document.URL.split("?")[1];
