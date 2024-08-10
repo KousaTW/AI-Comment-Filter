@@ -185,7 +185,7 @@ const CommentMethod = {
 }
 
 const Global = {
-    debug_mode: true,
+    debug_mode: false,
     timer: null,
     rawComments: [],
     processedComments: [],
