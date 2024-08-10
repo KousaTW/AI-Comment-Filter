@@ -1,3 +1,4 @@
+// Control iframe
 function open_close_page(){
     const root = document.querySelector("#ai_comments_filter_extension_root");
     if(root){
@@ -42,10 +43,6 @@ function createIframe() {
     document.body.appendChild(root);
     root.prepend(iframe);
 }
-
-
-
-
 
 
 /**
@@ -97,11 +94,10 @@ const Youtube = {
         const author = ytComment.querySelector("h3").textContent.trim()
         const content = ytComment.querySelector("#content-text").textContent.trim()
 
-
-        if (author && content) {
-            return { Comment_ID: ID, User_ID: author, Comment: content, status: Status.pending, Category_Name: '' };
-        }
-        return undefined;
+        if (!author || !content)
+            return undefined;
+        
+        return { Comment_ID: ID, User_ID: author, Comment: content, status: Status.pending, Category_Name: '' };
     },
     /**
      * 使用Attr來建立reply的樓層
@@ -133,9 +129,9 @@ const Youtube = {
         if (ytComment.parentElement.parentElement.parentElement.parentElement)
             replyFloor = ytComment.parentElement.parentElement.parentElement.parentElement;
 
-        if (replyFloor && replyFloor.hasAttribute(this.replyFloorAttr)) {
+        if (replyFloor && replyFloor.hasAttribute(this.replyFloorAttr))
             return replyFloor.getAttribute(this.replyFloorAttr);
-        }
+        
         return false;
     }
 }
@@ -181,18 +177,19 @@ const CommentMethod = {
             })
             .filter(_comment => _comment !== undefined);
 
-        if (_comments.length > 0) {
+        if (_comments.length > 0)
             return _comments
-        }
+        else
+            return []
     }
-
 }
 
 const Global = {
+    debug_mode: true,
     timer: null,
     rawComments: [],
     processedComments: [],
-    CheckedCategorys: new Map()
+    CheckedCategories: new Map()
 }
 
 /**
@@ -219,16 +216,17 @@ function launchMutationObserver(observer) {
     // 找到留言區
     const targetNodes = document.querySelectorAll('#sections');
     const index = Array.from(targetNodes).findIndex(target => target.querySelector("#main"));
-
     const targetNode = targetNodes[index];
 
-    if (targetNode) {
+    if (!targetNode)
+        return;
+
+    if (Global.debug_mode)
         console.log(targetNode);
-        observer.observe(targetNode, {
-            childList: true,
-            subtree: true
-        })
-    }
+    observer.observe(targetNode, {
+        childList: true,
+        subtree: true
+    })
 }
 
 
@@ -243,16 +241,17 @@ const getCurrentTime = () => {
  * @param {String} ID chrome.storage儲存的key
  * @param {Platform} platform 
  */
-async function retrievedComment(ID, platform, test = false) {
+async function retrievedComment(ID, platform) {
     // 獲得儲存的處理過資料
     Global.processedComments = await getComments(ID);
     // 接收新處理的資料
-    if (test) {
-        return console.log(`%cRetrieved - ${getCurrentTime()}`, 'font-size: 20px; color: blue; background-color: pink;');
-    }
-
+    if (Global.debug_mode)
+        console.log(`%cRetrieved - ${getCurrentTime()}`, 'font-size: 20px; color: blue; background-color: pink;');
+    
     const _receiveData = await sendMessageToPopup()
-    console.log('_receiveData', _receiveData)
+    if (Global.debug_mode)
+        console.log('_receiveData', _receiveData)
+    
     // 結合資料
     if (_receiveData && _receiveData.length > 0){
         Global.processedComments = [...Global.processedComments, ..._receiveData]
@@ -278,13 +277,17 @@ async function sendMessageToPopup() {
         }
     })
 
+    if (_sendData.length == 0)
+        return [];
 
-    if (_sendData.length > 0) {
+    if (Global.debug_mode)
         console.log('_sendData :', _sendData)
-        const _result = await chrome.runtime.sendMessage({ task: "generate_comment", data: _sendData });
+
+    const _result = await chrome.runtime.sendMessage({ task: "generate_comment", data: _sendData });
+    
+    if (Global.debug_mode)
         console.log('_result :', _result)
-        return _result
-    }
+    return _result
 }
 /**
  * 遮住留言
@@ -293,61 +296,56 @@ async function sendMessageToPopup() {
  */
 async function maskOriginData(platform) {
     //更新最新設定
-    Global.CheckedCategorys = await getCheckedCategory();
+    Global.CheckedCategories = await getCheckedCategory();
 
-    console.log('Global.processedComments', Global.processedComments)
+    if (Global.debug_mode)
+        console.log('Global.processedComments', Global.processedComments)
 
     Global.processedComments.forEach(_comment => {
-
         const  _category = _comment.Category || _comment.Category_Name;
+        if (!Global.CheckedCategories.has(_category))
+            return;
 
-        if (Global.CheckedCategorys.has(_category)) {
-            const _commentDom = document.querySelector(`[${platform.attr}="${_comment.Comment_ID}"]`)
-            _commentDom.classList.add('filterMask')
-
+        const _commentDom = document.querySelector(`[${platform.attr}="${_comment.Comment_ID}"]`)
+        _commentDom.classList.add('filterMask')
+        if (Global.debug_mode)
             console.log(`mask on [${platform.attr}="${_comment.Comment_ID}"]`)
-        }
     })
 }
 
 const setComments = (ID, commentData) => {
     chrome.storage.local.set({ [ID]: commentData }, () => {
-        console.log('Comments saved for ID:', ID)
+        if (Global.debug_mode)
+            console.log('Comments saved for ID:', ID)
     })
 }
 
 const getComments = (videoID) => {
     return new Promise((resolve, reject) => {
         chrome.storage.local.get([videoID], function (result) {
-            if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError);
-            } else {
-                let _gettingComments = result.videoID;
-                if (_gettingComments && gettingList.length != 0) {
-                    resolve(_gettingComments);
-                } else {
-                    console.log('No Comments found in storage.');
-                    resolve([]);
-                }
-            }
+            if (chrome.runtime.lastError)
+                resolve([])
+            
+            const _gettingComments = result.videoID;
+            if (!_gettingComments || gettingList.length == 0)
+                resolve([]);
+
+            resolve(_gettingComments);
         });
     });
 };
 
 const getCheckedCategory = () => {
     return new Promise((resolve, reject) => {
-        chrome.storage.local.get('checkedCategorys', function (result) {
-            if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError);
-            } else {
-                let gettingList = result.checkedCategorys;
-
-                if (gettingList.length != 0) {
-                    resolve(new Map(gettingList));
-                } else {
-                    console.log('No checkedList found in storage.');
-                }
-            }
+        chrome.storage.local.get('checkedCategories', function (result) {
+            if (chrome.runtime.lastError) 
+                resolve(new Map([]));
+            
+            const gettingList = result.checkedCategories;
+            if (!gettingList || gettingList.length == 0)
+                resolve(new Map([])); 
+            
+            resolve(new Map(gettingList));
         });
     });
 };
@@ -355,36 +353,34 @@ const getCheckedCategory = () => {
 document.body.addEventListener("keydown", (e)=>{
     if(e.key == "x")
         open_close_page();
-} ,false)
+}, false)
 
 window.onload = () => {
-    if (document.URL.includes("https://www.youtube.com/watch")) {
-        open_close_page();
-        
-        const queryParameters = document.URL.split("?")[1];
-        const urlParameters = new URLSearchParams(queryParameters);
-        const observer = new MutationObserver(async (mutationsList) => {
-            for (const mutation of mutationsList) {
-                if (mutation.type !== 'childList') {
-                    continue;
-                }
-                const _videoID = urlParameters.get('v')
-                clearTimeout(Global.timer)
-
+    open_close_page();
+    
+    const queryParameters = document.URL.split("?")[1];
+    const urlParameters = new URLSearchParams(queryParameters);
+    const observer = new MutationObserver(async (mutationsList) => {
+        for (const mutation of mutationsList) {
+            if (mutation.type !== 'childList')
+                continue;
+            
+            const _videoID = urlParameters.get('v')
+            clearTimeout(Global.timer)
+            if (Global.debug_mode)
                 console.log('clear Timeout', getCurrentTime())
-                Global.timer = setTimeout(function () {
-                    retrievedComment(_videoID, Youtube)
-                }, 500)
 
-                const _parsedComments = CommentMethod.process(Youtube)
-                if (_parsedComments) {
-                    Global.rawComments = [...Global.rawComments, ..._parsedComments]
-                };
-            }
-        });
-        // 等待找到第一筆留言後 啟動mutation observer
-        waitElement(Youtube.selector, async () => {
-            launchMutationObserver(observer);
-        })
-    }
+            Global.timer = setTimeout(function () {
+                retrievedComment(_videoID, Youtube)
+            }, 500)
+
+            const _parsedComments = CommentMethod.process(Youtube)
+            if (_parsedComments)
+                Global.rawComments = [...Global.rawComments, ..._parsedComments]
+        }
+    });
+    // 等待找到第一筆留言後 啟動mutation observer
+    waitElement(Youtube.selector, async () => {
+        launchMutationObserver(observer);
+    })
 }
