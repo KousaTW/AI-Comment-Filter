@@ -33,7 +33,6 @@ model_name_input.addEventListener("input", (e) => {
 chrome.runtime.onMessage.addListener(
     wrapAsyncFunction(async (request, sender) => {
         if (request.task === "generate_comment") {
-            // const data = [{"Comment_ID": "1", "Comment": "殺了他"}, {"Comment_ID": "2", "Comment": "我的天啊"}, {"Comment_ID": "3", "Comment": "大奶主播"}, {"Comment_ID": "4", "Comment": "主角會死"}]
             const data = request.data;
             const input_prompt = convertListToXML(data, "Comments_List", "Comments");
             const _api_key = api_key_input.value;
@@ -43,7 +42,6 @@ chrome.runtime.onMessage.addListener(
                 return { "result": false };
 
             const response = await modelGenerate(_api_key, input_prompt, _model_name, _categories);
-            // {result: 'Here is the output in JSON format:\n\n[{"Comment_ID"…\n{"Comment_ID": "4", "Category_Name": "spoiler"}]'}
             if (!response.result)
                 return { "result": false };
 
