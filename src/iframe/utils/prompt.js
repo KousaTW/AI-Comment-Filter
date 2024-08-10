@@ -26,7 +26,6 @@ Base on a string of <Comment> and corresponding <Comment_ID> in XML format <Comm
 
 # Categories and Definitions #
 1. Normal: The contents of these messages are usually general discussions, questions, and comments without any special tagging requirements. This type of message can be a friendly exchange, advice or a general word of thanks.
-
 <Filter_Rules>
 1. Carefully read through each comment in the <Comments_List>.
 2. Identify and classify any comments that contain categories in # Categories and Definitions #.
